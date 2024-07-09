@@ -25,6 +25,10 @@ const moduleSchema = new Schema({
     required: true,
     type: [String],
   },
+  duration: {
+    required: true,
+    type: Number
+  }
 });
 
 export const Module = mongoose.models.Module ?? mongoose.model("Module", moduleSchema);
