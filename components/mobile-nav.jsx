@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-export function MobileNav({ items, children }) {
+export function MobileNav({ items, loginSession, children }) {
   useLockBody();
 
   return (
@@ -34,29 +34,31 @@ export function MobileNav({ items, children }) {
             </Link>
           ))}
         </nav>
-        <div className="items-center gap-3 flex lg:hidden">
-          <Link
-            href="/login"
-            className={cn(buttonVariants({ size: "sm" }), "px-4")}
-          >
-            Login
-          </Link>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                Register
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="w-56 mt-4">
-              <DropdownMenuItem className="cursor-pointer">
-                <Link href="">Student</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                <Link href="">Instructor</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        {!loginSession && (
+          <div className="items-center gap-3 flex lg:hidden">
+            <Link
+              href="/login"
+              className={cn(buttonVariants({ size: "sm" }), "px-4")}
+            >
+              Login
+            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  Register
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-56 mt-4">
+                <DropdownMenuItem className="cursor-pointer">
+                  <Link href="/register/student">Student</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
+                  <Link href="/register/instructor">Instructor</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
         {children}
       </div>
     </div>
