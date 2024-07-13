@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { MobileNav } from "@/components/mobile-nav";
 import { Menu, X } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 import { Logo } from "./logo";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button, buttonVariants } from "./ui/button";
@@ -19,7 +20,11 @@ import {
 export function MainNav({ items, children }) {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const { data: session } = useSession();
+  console.log(session);
   const [loginSession, setLoginSession] = useState(null);
+  if (session?.error === "RefreshAccessTokenError") {
+    redirect("/login");
+  }
 
   useEffect(() => {
     setLoginSession(session);
