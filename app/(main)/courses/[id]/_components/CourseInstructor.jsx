@@ -1,4 +1,4 @@
-import { getCourseDetailsByInstructor } from "@/queries/coures";
+import { getCourseDetailsByInstructor } from "@/queries/courses";
 import { MessageSquare, Presentation, Star, UsersRound } from "lucide-react";
 import Image from "next/image";
 

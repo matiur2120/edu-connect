@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 
 export function SignupForm({ role }) {
   const router = useRouter();
-  const handleSubmit = async (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
     try {
       const formDate = new FormData(event.currentTarget);
@@ -24,32 +24,35 @@ export function SignupForm({ role }) {
       const email = formDate.get("email");
       const password = formDate.get("password");
       const confirmPassword = formDate.get("confirm-password");
+      console.log(confirmPassword);
+      console.log(password);
       const userRole =
-        role === "instructor" || role === "student" ? role : "student";
+        role === "student" || role === "instructor" ? role : "student";
       if (password !== confirmPassword) {
-        console.error("Password did not match");
+        console.log("Password did not match");
+        console.log("Password did not match");
       } else {
-        const newUser = {
-          firstName,
-          lastName,
-          email,
-          password,
-          userRole,
-        };
-
         const response = await fetch("/api/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(newUser),
+          body: JSON.stringify({
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            password: password,
+            userRole: userRole,
+          }),
         });
+        console.log(response);
         response.status === 201 && router.push("/login");
       }
     } catch (error) {
       console.log(error.message);
     }
   };
+
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader>
@@ -59,7 +62,7 @@ export function SignupForm({ role }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={onSubmit}>
           <div className="grid gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">

@@ -6,7 +6,6 @@ const courseSchema = new Schema({
         type: String
     },
     subtitle: {
-        required: true,
         type: String
     },
     description: {
@@ -14,7 +13,6 @@ const courseSchema = new Schema({
         type: String
     },
     thumbnail: {
-        required: true,
         type: String
     },
     modules: [{
@@ -23,10 +21,12 @@ const courseSchema = new Schema({
     }],
     price: {
         required: true,
+        default: 0,
         type: Number
     },
     active: {
         required: true,
+        default: false,
         type: Boolean
     },
     category:{
@@ -47,15 +47,16 @@ const courseSchema = new Schema({
         ref: 'Testimonial'
     }],
     learning: {
-        required: true,
         type: [String]
     },
     createdOn: {
         required: true,
+        default: Date.now(),
         type: Date
     },
     modifiedOn: {
         required: true,
+        default: Date.now(),
         type: Date
     }
 

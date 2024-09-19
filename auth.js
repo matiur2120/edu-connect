@@ -60,7 +60,6 @@ export const {
         if (credentials == null) return null;
         try {
           const user = await User.findOne({ email: credentials.email }).lean();
-          console.log(user)
           if (user) {
             if (user) {
               const isMatch = await bcrypt.compare(
@@ -96,32 +95,32 @@ export const {
       }
     }),
   ],
-  callbacks: {
-    async jwt({token, user, account}){
-      console.log(`JWT token: ${JSON.stringify(token)}`);
-      console.log(`JWT account ${JSON.stringify(account)}`)
-      if(account && user){
-      return{
-      accessToken: account?.access_token,
-      accessTokenExpires: Date.now() + account?.expires_in * 1000,
-      refreshToken: account?.refresh_token,
-      user
-      }}
-      if(Date.now() < token?.accessTokenExpires){
-        console.log(`At ${new Date(Date.now())} Using old access token`)
-        return token;
-      }
-      console.log(`Token expire at ${new Date(Date.now())}`)
-      return refreshAccessToken(token);
+  // callbacks: {
+  //   async jwt({token, user, account}){
+  //     console.log(`JWT token: ${JSON.stringify(token)}`);
+  //     console.log(`JWT account ${JSON.stringify(account)}`)
+  //     if(account && user){
+  //     return{
+  //     accessToken: account?.access_token,
+  //     accessTokenExpires: Date.now() + account?.expires_in * 1000,
+  //     refreshToken: account?.refresh_token,
+  //     user
+  //     }}
+  //     if(Date.now() < token?.accessTokenExpires){
+  //       console.log(`At ${new Date(Date.now())} Using old access token`)
+  //       return token;
+  //     }
+  //     console.log(`Token expire at ${new Date(Date.now())}`)
+  //     return refreshAccessToken(token);
 
-      },
-    async session({session, token}){
-      session.user = token?.user;
-      session.accessToken = token?.access_token;
-      session.error = token?.error
-      console.log(`Returning session ${session}`)
-      return session;
-    }   
-    }
+  //     },
+  //   async session({session, token}){
+  //     session.user = token?.user;
+  //     session.accessToken = token?.access_token;
+  //     session.error = token?.error
+  //     console.log(`Returning session ${session}`)
+  //     return session;
+  //   }   
+  //   }
    }
 );

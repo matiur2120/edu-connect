@@ -1,6 +1,6 @@
 
 // import { CourseProgress } from "@/components/course-progress";
-import { getCourseList } from "@/queries/coures";
+import { getCourseList } from "@/queries/courses";
 
 // for mobile sidebar
 import ActiveFilter from "./_components/ActiveFilter";

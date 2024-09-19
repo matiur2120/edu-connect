@@ -2,7 +2,7 @@ import { SectionTitle } from "@/components/section-title";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getCategories } from "@/queries/categories";
-import { getCourseList } from "@/queries/coures";
+import { getCourseList } from "@/queries/courses";
 import { ArrowRightIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

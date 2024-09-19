@@ -11,7 +11,7 @@ const enrollmentSchema = new Schema({
         type: String
     },
     completion_date: {
-        required: true,
+        required: false,
         type: Date
     },
     method: {
