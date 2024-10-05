@@ -5,7 +5,7 @@ const reportSchema = new Schema({
         required: true,
         type: Array
     },
-    totalCompletedModeules: {
+    totalCompletedModules: {
         required: true,
         type: Array
     },
@@ -13,7 +13,7 @@ const reportSchema = new Schema({
         type: Schema.ObjectId,
         ref: 'Course'
     },
-    studnet: {
+    student: {
         type: Schema.ObjectId,
         ref: 'User'
     },
@@ -21,6 +21,11 @@ const reportSchema = new Schema({
         type: Schema.ObjectId, 
         ref: "Assessment" 
     },
+    completion_date: {
+        required: false,
+        type: Date
+
+    }
 })
 
 export const Report = mongoose.models.Report ?? mongoose.model("Report", reportSchema);

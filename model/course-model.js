@@ -38,9 +38,10 @@ const courseSchema = new Schema({
         ref: 'User'
 
     },
-    quizzes: {
+    quizSet: {
         required: false,
-        type: Schema.ObjectId
+        type: Schema.ObjectId,
+        ref: 'Quizset'
     },
     testimonials: [{
         type: Schema.ObjectId,
@@ -63,4 +64,5 @@ const courseSchema = new Schema({
 })
 
 
-export const Course = mongoose.models.Course ?? mongoose.model('Course', courseSchema)
+
+export const Course = mongoose.models.Course ?? mongoose.model("Course", courseSchema);

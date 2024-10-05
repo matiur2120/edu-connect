@@ -1,37 +1,42 @@
 import AlertBanner from "@/components/alert-banner";
 import { IconBadge } from "@/components/icon-badge";
-import {
-  ArrowLeft,
-  BookOpenCheck,
-  Eye,
-  LayoutDashboard,
-  Video,
-} from "lucide-react";
+import { replaceMongoIdInArray } from "@/lib/convertData";
+import { getModuleById } from "@/queries/modules";
+import { ArrowLeft, BookOpenCheck, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
-import { ModuleTitleForm } from "./_components/module-title-form";
 import { LessonForm } from "./_components/lesson-form";
-import { CourseActions } from "../../_components/course-action";
+import ModuleActions from "./_components/module-actions";
+import { ModuleTitleForm } from "./_components/module-title-form";
 
-const Module = async ({ params }) => {
+const Module = async ({ params: { courseId, moduleId } }) => {
+  const moduleInfo = await getModuleById(moduleId);
+  console.log(moduleInfo);
+  const lessons = replaceMongoIdInArray(moduleInfo?.lessonIds).sort(
+    (a, b) => a.order - b.order
+  );
+  console.log(lessons);
   return (
     <>
-      <AlertBanner
-        label="This module is unpublished. It will not be visible in the course."
-        variant="warning"
-      />
+      {!moduleInfo?.active && (
+        <AlertBanner
+          label="This module is unpublished. It will not be visible in the course."
+          variant="warning"
+        />
+      )}
 
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="w-full">
             <Link
-              href={`/dashboard/courses/${1}`}
+              href={`/dashboard/courses/${courseId}`}
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to course setup
             </Link>
             <div className="flex items-center justify-end">
-              <CourseActions />
+              {/* <CourseActions /> */}
+              <ModuleActions courseId={courseId} module={moduleInfo} />
             </div>
           </div>
         </div>
@@ -42,14 +47,22 @@ const Module = async ({ params }) => {
                 <IconBadge icon={LayoutDashboard} />
                 <h2 className="text-xl">Customize Your module</h2>
               </div>
-              <ModuleTitleForm initialData={{}} courseId={1} chapterId={1} />
+              <ModuleTitleForm
+                initialData={{ title: moduleInfo.title }}
+                courseId={courseId}
+                chapterId={moduleId}
+              />
             </div>
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={BookOpenCheck} />
                 <h2 className="text-xl">Module Lessons</h2>
               </div>
-              <LessonForm />
+              <LessonForm
+                initialData={lessons}
+                moduleId={moduleId}
+                courseId={courseId}
+              />
             </div>
           </div>
           <div>

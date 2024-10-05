@@ -31,7 +31,6 @@ export async function hasEnrollmentForCourse(courseId, studentId){
             path: 'course',
             modle: Course
         }).lean()
-        console.log(enrollment)
         if(!enrollment) return false;
         return true;
     }catch(error){

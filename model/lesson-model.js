@@ -6,20 +6,20 @@ const lessonSchema = new Schema({
         type: String
     },
     description: {
-        required: false,
         type: String   
     },
     duration: {
+        type: Number,
         required: true,
-        type: Number
+        default: 0
     },
     video_url: {
-        required: true,
         type: String
     },
-    published: {
+    active: {
+        type: Boolean,
         required: true,
-        type: Boolean
+        default: false
     },
     slug: {
         required: true,
@@ -27,7 +27,12 @@ const lessonSchema = new Schema({
     },
     access: {
         required: true,
-        type: String
+        type: String,
+        default: 'private'
+    },
+    order: {
+        type: Number,
+        required: true
     }
 
 

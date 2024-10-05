@@ -4,6 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+import {
+  createModuleAction,
+  reorderModulesAction,
+} from "@/app/actions/module-actions";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,6 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { getSlug } from "@/lib/convertData";
 import { cn } from "@/lib/utils";
 import { Loader2, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -23,19 +28,9 @@ import { ModuleList } from "./module-list";
 const formSchema = z.object({
   title: z.string().min(1),
 });
-const initialModules = [
-  {
-    id: "1",
-    title: "Module 1",
-    isPublished: true,
-  },
-  {
-    id: "2",
-    title: "Module 2",
-  },
-];
+
 export const ModulesForm = ({ initialData, courseId }) => {
-  const [modules, setModules] = useState(initialModules);
+  const [modules, setModules] = useState(initialData);
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -52,11 +47,20 @@ export const ModulesForm = ({ initialData, courseId }) => {
   const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values) => {
+    console.log();
     try {
+      const formData = new FormData();
+
+      formData.append("title", values?.title);
+      formData.append("slug", getSlug(values?.title));
+      formData.append("courseId", courseId);
+      formData.append("order", modules.length);
+      const newModule = await createModuleAction(formData);
+
       setModules((modules) => [
         ...modules,
         {
-          id: Date.now().toString(),
+          id: newModule?._id.toString(),
           title: values.title,
         },
       ]);
@@ -64,26 +68,26 @@ export const ModulesForm = ({ initialData, courseId }) => {
       toggleCreating();
       router.refresh();
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(error.message);
     }
   };
 
   const onReorder = async (updateData) => {
-    console.log({ updateData });
     try {
       setIsUpdating(true);
+      await reorderModulesAction(updateData);
 
       toast.success("Chapters reordered");
       router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+    } catch (error) {
+      toast.error(error.message);
     } finally {
       setIsUpdating(false);
     }
   };
 
   const onEdit = (id) => {
-    router.push(`/dashboard/courses/1/modules/${1}`);
+    router.push(`/dashboard/courses/${courseId}/modules/${id}`);
   };
 
   return (

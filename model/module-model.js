@@ -2,32 +2,32 @@ import mongoose, { Schema } from "mongoose";
 
 const moduleSchema = new Schema({
   title: {
-    required: true,
     type: String,
+    required: true, 
   },
   description: {
-    required: true,
     type: String,
   },
-  status: {
+  active: {
+    type: Boolean,
     required: true,
-    type: String,
+    default: false,
   },
   slug: {
-    required: true,
     type: String,
+    required: true,
   },
   course: {
+    type: Schema.ObjectId,
     required: true,
-    type: String,
   },
-  lessonIds: {
-    required: true,
-    type: [String],
-  },
+  lessonIds: [{type: Schema.ObjectId, ref: 'Lesson'}],
   duration: {
-    required: true,
     type: Number
+  },
+  order: {
+    type: Number,
+    required: true,
   }
 });
 

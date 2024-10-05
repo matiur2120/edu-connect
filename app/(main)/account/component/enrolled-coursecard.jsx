@@ -1,5 +1,7 @@
+import { CourseProgress } from "@/components/course-progress";
 import { Badge } from "@/components/ui/badge";
 import { getCategoryDetailsById } from "@/queries/categories";
+import { getCourseDetails } from "@/queries/courses";
 import { getAReport } from "@/queries/reports";
 import { BookOpen } from "lucide-react";
 import Image from "next/image";
@@ -8,19 +10,27 @@ const EnrolledCoursecard = async ({ enrollment }) => {
   const categoryInfo = await getCategoryDetailsById(
     enrollment?.course?.category
   );
+  const courseInfo = await getCourseDetails(enrollment?.course);
+  const totalModule = courseInfo?.modules ? courseInfo?.modules?.length : 0;
   const filterForGetAReoprt = {
     course: enrollment?.course?._id,
     student: enrollment?.student?._id,
   };
   const report = await getAReport(filterForGetAReoprt);
-  const totalCompletedModules = report?.totalCompletedModeules?.length || 0;
-  const otherMarks = report?.quizAssessment?.otherMarks || 0;
+  const totalCompletedModules = report?.totalCompletedModeules
+    ? report?.totalCompletedModeules?.length
+    : 0;
+  const otherMarks = report?.quizAssessment
+    ? report?.quizAssessment?.otherMarks
+    : 0;
   //Get all Quizzes and Assessments
   const quizzes = report?.quizAssessment?.assessments;
-  const totalQuize = quizzes?.length || 0;
+  const totalQuize = quizzes?.length ?? 0;
   //Find attempted quizzes
-  const quizzesTaken = quizzes?.filter((quize) => quize.attempted);
-  const quizzesTakenCount = quizzesTaken?.length || 0;
+  const quizzesTaken = quizzes
+    ? quizzes?.filter((quize) => quize.attempted)
+    : [];
+  const quizzesTakenCount = quizzesTaken ? quizzesTaken?.length : 0;
   //Find how many quize ans correct
   const correctAns = quizzesTaken
     ?.map((quize) =>
@@ -32,6 +42,9 @@ const EnrolledCoursecard = async ({ enrollment }) => {
     .flat().length;
   const markFromQuize = correctAns * 5 || 0;
   const totalMark = otherMarks + markFromQuize;
+  const courseProgress = totalModule
+    ? Math.floor((totalCompletedModules / totalModule) * 100)
+    : 0;
 
   return (
     <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
@@ -104,11 +117,11 @@ const EnrolledCoursecard = async ({ enrollment }) => {
           </p>
         </div>
 
-        {/* <CourseProgress
-        size="sm"
-        value={80}
-        variant={110 === 100 ? "success" : ""}
-      /> */}
+        <CourseProgress
+          size="sm"
+          value={courseProgress}
+          variant={courseProgress === 100 ? "success" : ""}
+        />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+import { updateCourseAction } from "@/app/actions/course-actions";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import {
@@ -23,41 +24,33 @@ const formSchema = z.object({
   quizSetId: z.string().min(1),
 });
 
-export const QuizSetForm = ({
-  initialData,
-  courseId,
-  options = [
-    {
-      value: "quiz_set_1",
-      label: "Quiz Set 1",
-    },
-    {
-      value: "2",
-      label: "Quiz Set 2",
-    },
-  ],
-}) => {
+export const QuizSetForm = ({ initialData, courseId, options }) => {
   const router = useRouter();
+
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleEdit = () => setIsEditing((current) => !current);
+  const foundMatch = options.find((o) => o.value === initialData.quizSetId);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      quizSetId: initialData?.quizSetId || "",
+      value: initialData?.quizSetId || "",
+      label: initialData?.title || "",
     },
   });
 
   const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values) => {
+    console.log(values);
     try {
+      await updateCourseAction(courseId, { quizSet: values?.quizSetId });
       toast.success("Course updated");
       toggleEdit();
       router.refresh();
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(error.message);
     }
   };
 
@@ -83,10 +76,9 @@ export const QuizSetForm = ({
             !initialData.quizSetId && "text-slate-500 italic"
           )}
         >
-          {"No quiz set selected"}
+          {foundMatch ? foundMatch?.label : "No quiz set selected"}
         </p>
       )}
-      {console.log({ options })}
       {isEditing && (
         <Form {...form}>
           <form

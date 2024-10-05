@@ -3,11 +3,15 @@ import { BookCheck, Clock10 } from "lucide-react";
 import CourseModuleList from "./module/CourseModuleList";
 
 const CourseCurriculum = ({ course }) => {
-  const totalDuration = (
-    course?.modules?.reduce((acc, currentValue) => {
-      return acc + currentValue.duration;
-    }, 0) / 60
-  ).toPrecision(2);
+  const totalDuration = course?.modules
+    .map((module) => {
+      return module.lessonIds.reduce((acc, obj) => {
+        return acc + obj.duration;
+      }, 0);
+    })
+    .reduce((acc, cv) => {
+      return acc + cv;
+    }, 0);
 
   return (
     <>
@@ -18,7 +22,7 @@ const CourseCurriculum = ({ course }) => {
         </span>
         <span className="flex items-center gap-1.5">
           <Clock10 className="w-4 h-4" />
-          {totalDuration} Hours
+          {(totalDuration / 3600).toPrecision(2)} Hours
         </span>
         {/* <span className="flex items-center gap-1.5">
           <Radio className="w-4 h-4" />4 Live Class

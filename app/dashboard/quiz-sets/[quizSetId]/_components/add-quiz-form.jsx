@@ -6,6 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { addQuizAction } from "@/app/actions/quiz-actions";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -15,13 +18,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { PlusCircle } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { getSlug } from "@/lib/convertData";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const formSchema = z.object({
   title: z
@@ -39,85 +39,83 @@ const formSchema = z.object({
       message: "Description is required",
     }),
   optionA: z.object({
-    label: z
+    text: z
       .string({
         required_error: "Option label is required",
       })
       .min(1, {
         message: "Option label is required",
       }),
-    isTrue: z.boolean().default(false),
+    is_correct: z.boolean().default(false),
   }),
   optionB: z.object({
-    label: z
+    text: z
       .string({
         required_error: "Option label is required",
       })
       .min(1, {
         message: "Option label is required",
       }),
-    isTrue: z.boolean().default(false),
+    is_correct: z.boolean().default(false),
   }),
   optionC: z.object({
-    label: z
+    text: z
       .string({
         required_error: "Option label is required",
       })
       .min(1, {
         message: "Option label is required",
       }),
-    isTrue: z.boolean().default(false),
+    is_correct: z.boolean().default(false),
   }),
   optionD: z.object({
-    label: z
+    text: z
       .string({
         required_error: "Option label is required",
       })
       .min(1, {
         message: "Option label is required",
       }),
-    isTrue: z.boolean().default(false),
+    is_correct: z.boolean().default(false),
   }),
 });
-
-export const AddQuizForm = ({ setQuizes }) => {
+export const AddQuizForm = ({ quizSetId, editQuiz, isEdit }) => {
+  const [quiz, setQuiz] = useState({});
   const router = useRouter();
-
   const form = useForm({
     resolver: zodResolver(formSchema),
     mode: "all",
     defaultValues: {
-      title: "",
+      title: true ? quiz?.question : "",
       description: "",
       optionA: {
-        label: "",
-        isTrue: false,
+        text: "",
+        is_correct: false,
       },
       optionB: {
-        label: "",
-        isTrue: false,
+        text: "",
+        is_correct: false,
       },
       optionC: {
-        label: "",
-        isTrue: false,
+        text: "",
+        is_correct: false,
       },
       optionD: {
-        label: "",
-        isTrue: false,
+        text: "",
+        is_correct: false,
       },
     },
   });
 
   const { isSubmitting, isValid, errors } = form.formState;
-  console.log(errors);
 
   const onSubmit = async (values) => {
     try {
       console.log({ values });
-
       const structuredQuiz = {
-        id: Date.now(),
-        title: values.title,
+        question: values.title,
+        description: values.description,
+        slug: getSlug(values.title),
         options: [
           values.optionA,
           values.optionB,
@@ -125,31 +123,38 @@ export const AddQuizForm = ({ setQuizes }) => {
           values.optionD,
         ],
       };
-      setQuizes((prevQuizes) => [...prevQuizes, structuredQuiz]);
-      form.reset({
-        title: "",
-        description: "",
-        optionA: {
-          label: "",
-          isTrue: false,
-        },
-        optionB: {
-          label: "",
-          isTrue: false,
-        },
-        optionC: {
-          label: "",
-          isTrue: false,
-        },
-        optionD: {
-          label: "",
-          isTrue: false,
-        },
-      });
-      toggleEdit();
-      router.refresh();
+      const correctness = structuredQuiz.options;
+      const correctMarked = correctness.filter((c) => c.is_correct);
+      if (correctMarked.length === 1) {
+        const newQuiz = await addQuizAction(quizSetId, structuredQuiz);
+        console.log(newQuiz);
+        toast.success("Quiz created successfully");
+        form.reset({
+          title: "",
+          description: "",
+          optionA: {
+            text: "",
+            is_correct: false,
+          },
+          optionB: {
+            text: "",
+            is_correct: false,
+          },
+          optionC: {
+            text: "",
+            is_correct: false,
+          },
+          optionD: {
+            text: "",
+            is_correct: false,
+          },
+        });
+        router.refresh();
+      } else {
+        toast.error("You must mark only one correct answare");
+      }
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(error.message);
     }
   };
 
@@ -208,7 +213,7 @@ export const AddQuizForm = ({ setQuizes }) => {
               <div className="flex items-start gap-3">
                 <FormField
                   control={form.control}
-                  name="optionA.isTrue"
+                  name="optionA.is_correct"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
                       <FormControl>
@@ -224,7 +229,7 @@ export const AddQuizForm = ({ setQuizes }) => {
                   {/* option label  */}
                   <FormField
                     control={form.control}
-                    name="optionA.label"
+                    name="optionA.text"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -249,7 +254,7 @@ export const AddQuizForm = ({ setQuizes }) => {
               <div className="flex items-start gap-3">
                 <FormField
                   control={form.control}
-                  name="optionB.isTrue"
+                  name="optionB.is_correct"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
                       <FormControl>
@@ -265,7 +270,7 @@ export const AddQuizForm = ({ setQuizes }) => {
                   {/* option label  */}
                   <FormField
                     control={form.control}
-                    name="optionB.label"
+                    name="optionB.text"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -290,7 +295,7 @@ export const AddQuizForm = ({ setQuizes }) => {
               <div className="flex items-start gap-3">
                 <FormField
                   control={form.control}
-                  name="optionC.isTrue"
+                  name="optionC.is_correct"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
                       <FormControl>
@@ -306,7 +311,7 @@ export const AddQuizForm = ({ setQuizes }) => {
                   {/* option label  */}
                   <FormField
                     control={form.control}
-                    name="optionC.label"
+                    name="optionC.text"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -331,7 +336,7 @@ export const AddQuizForm = ({ setQuizes }) => {
               <div className="flex items-start gap-3">
                 <FormField
                   control={form.control}
-                  name="optionD.isTrue"
+                  name="optionD.is_correct"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
                       <FormControl>
@@ -347,7 +352,7 @@ export const AddQuizForm = ({ setQuizes }) => {
                   {/* option label  */}
                   <FormField
                     control={form.control}
-                    name="optionD.label"
+                    name="optionD.text"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>

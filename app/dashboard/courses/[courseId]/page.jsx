@@ -1,10 +1,12 @@
 import AlertBanner from "@/components/alert-banner";
 import { IconBadge } from "@/components/icon-badge";
+import { replaceMongoIdInArray } from "@/lib/convertData";
 import { getCategories } from "@/queries/categories";
 import { getCourseDetails } from "@/queries/courses";
+import { getAllQuizSets } from "@/queries/quizzes";
 import { CircleDollarSign, LayoutDashboard, ListChecks } from "lucide-react";
 import { CategoryForm } from "./_components/category-form";
-import { CourseActions } from "./_components/course-action";
+import CourseActions from "./_components/course-actions";
 import { DescriptionForm } from "./_components/description-form";
 import { ImageForm } from "./_components/image-form";
 import { ModulesForm } from "./_components/module-form";
@@ -15,7 +17,6 @@ import { TitleForm } from "./_components/title-form";
 const EditCourse = async ({ params: { courseId } }) => {
   const course = await getCourseDetails(courseId);
   console.log(course);
-  console.log(course?.category?.title);
   const categories = await getCategories();
   const mappedCategories = categories.map((c) => {
     return {
@@ -24,16 +25,32 @@ const EditCourse = async ({ params: { courseId } }) => {
       id: c.id,
     };
   });
+  const courseModules = replaceMongoIdInArray(course?.modules).sort(
+    (a, b) => a.order - b.order
+  );
+  const allQuizSets = await getAllQuizSets(true);
+  let mappedQuizSets = [];
+  if (allQuizSets && allQuizSets.length > 0) {
+    mappedQuizSets = allQuizSets.map((quizSet) => {
+      return {
+        value: quizSet.id,
+        label: quizSet.title,
+      };
+    });
+  }
 
   return (
     <>
-      <AlertBanner
-        label="This course is unpublished. It will not be visible in the course."
-        variant="warning"
-      />
+      {!course?.active && (
+        <AlertBanner
+          label="This course is unpublished. It will not be visible in the course."
+          variant="warning"
+        />
+      )}
+
       <div className="p-6">
         <div className="flex items-center justify-end">
-          <CourseActions />
+          <CourseActions course={course} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
           <div>
@@ -63,7 +80,13 @@ const EditCourse = async ({ params: { courseId } }) => {
               options={mappedCategories}
             />
 
-            <QuizSetForm initialData={{}} courseId={course?.id} />
+            <QuizSetForm
+              initialData={{
+                quizSetId: course?.quizSet?._id.toString(),
+              }}
+              courseId={course?.id}
+              options={mappedQuizSets}
+            />
           </div>
           <div className="space-y-6">
             <div>
@@ -72,7 +95,7 @@ const EditCourse = async ({ params: { courseId } }) => {
                 <h2 className="text-xl">Course Modules</h2>
               </div>
 
-              <ModulesForm initialData={[]} courseId={[]} />
+              <ModulesForm initialData={courseModules} courseId={course?.id} />
             </div>
             <div>
               <div className="flex items-center gap-x-2">

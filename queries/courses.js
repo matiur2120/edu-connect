@@ -1,7 +1,10 @@
 import { replaceMongoIdInArray, replaceMongoIdInObject } from "@/lib/convertData";
 import { Category } from "@/model/category-model";
 import { Course } from "@/model/course-model";
+import { Lesson } from "@/model/lesson-model";
 import { Module } from "@/model/module-model";
+import { Quiz } from "@/model/quiz-model";
+import { Quizset } from "@/model/quizset-model";
 import { Testimonial } from "@/model/testimonial-model";
 import { User } from "@/model/user-model";
 import { getEnrollmentsForCourse } from "./enrollments";
@@ -41,12 +44,23 @@ export async function getCourseDetails(id){
         model: Testimonial,
         populate: {
             path: 'user',
-            model: 'User'
+            model: User
         }
     }).populate({
         path: 'modules',
-        model: Module
+        model: Module,
+        populate: {
+            path: 'lessonIds',
+            model: Lesson
+        }
 
+    }).populate({
+        path: 'quizSet',
+        model: Quizset,
+        populate: {
+            path: 'quizIds',
+            model: Quiz
+        }
     })
     .lean()
     return replaceMongoIdInObject(course);
@@ -76,7 +90,8 @@ export async function getCourseDetailsByInstructor(instructorId, expand=false){
     
         const groupByCourses = Object.groupBy(enrollments.flat(), ({course})=>course)
         const totalRevenue = publishedCourses.reduce((acc, course)=>{
-            return (acc + groupByCourses[course._id].length * course.price)
+            const quantity = groupByCourses[course._id] ? groupByCourses[course._id].length : 0;
+            return (acc + quantity * course.price)
 
         }, 0)
         
@@ -116,7 +131,7 @@ export async function getCourseDetailsByInstructor(instructorId, expand=false){
             'averageRating': avgRating
         }
     }catch(error){
-        throw new Error(error);
+        throw error;
     }
 
 }

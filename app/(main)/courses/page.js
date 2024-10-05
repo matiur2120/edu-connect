@@ -11,65 +11,6 @@ import SearchCourse from "./_components/SearchCourse";
 import SortCourse from "./_components/SortCourse";
 
 
-const PRICE_OPTIONS = [
-  { label: "Free", value: "free" },
-  { label: "Paid", value: "paid" },
-];
-
-const SIZE_FILTERS = {
-  id: "size",
-  name: "Size",
-  options: [
-    { value: "S", label: "S" },
-    { value: "M", label: "M" },
-    { value: "L", label: "L" },
-  ],
-};
-
-const CATEGORY_OPTIONS = [
-  {
-    id: 1,
-    label: "Design",
-    value: "design",
-  },
-
-  {
-    id: 3,
-    label: "Development",
-    value: "development",
-  },
-  {
-    id: 4,
-    label: "Marketing",
-    value: "marketing",
-  },
-  {
-    id: 5,
-    label: "IT & Software",
-    value: "it-software",
-  },
-  {
-    id: 6,
-    label: "Personal Development",
-    value: "personal-development",
-  },
-  {
-    id: 7,
-    label: "Business",
-    value: "business",
-  },
-  {
-    id: 8,
-    label: "Photography",
-    value: "photography",
-  },
-  {
-    id: 9,
-    label: "Music",
-    value: "music",
-  },
-];
-
 const CoursesPage = async() => {
     const courses = await getCourseList();
 

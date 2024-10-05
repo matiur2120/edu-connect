@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+import { updateLessonAction } from "@/app/actions/lesson-actions";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -26,13 +27,15 @@ const formSchema = z.object({
 export const LessonAccessForm = ({ initialData, courseId, lessonId }) => {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
-
+  const [access, setAccess] = useState(
+    initialData?.access === "private" ? false : true
+  );
   const toggleEdit = () => setIsEditing((current) => !current);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      isFree: !!initialData.isFree,
+      isFree: access,
     },
   });
 
@@ -40,7 +43,10 @@ export const LessonAccessForm = ({ initialData, courseId, lessonId }) => {
 
   const onSubmit = async (values) => {
     try {
-      toast.success("Lesson updated");
+      const access = values?.isFree ? "public" : "private";
+      updateLessonAction(lessonId, { access: access });
+      setAccess(values?.isFree);
+      toast.success("Lesson access updated");
       toggleEdit();
       router.refresh();
     } catch (error) {
@@ -64,13 +70,8 @@ export const LessonAccessForm = ({ initialData, courseId, lessonId }) => {
         </Button>
       </div>
       {!isEditing && (
-        <p
-          className={cn(
-            "text-sm mt-2",
-            !initialData.isFree && "text-slate-500 italic"
-          )}
-        >
-          {initialData.isFree ? (
+        <p className={cn("text-sm mt-2", !access && "text-slate-500 italic")}>
+          {access ? (
             <>This chapter is free for preview</>
           ) : (
             <>This chapter is not free</>
